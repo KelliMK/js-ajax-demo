@@ -1,6 +1,16 @@
 const button = document.querySelector('button')
 button.addEventListener('click', addContentToSidebar)
 
+const aside = document.querySelector('aside')
+aside.addEventListener('click', event => {
+	if (event.target.classList.contains('studentButton')) {
+		getStudent(event.target)
+	}
+})
+
+const button2 = document.querySelector('.button2')
+button2.addEventListener('click', getLukeSkywalker)
+
 function addContentToSidebar() {
 	// Creates a new AJAX request
 	var xhttp = new XMLHttpRequest()
@@ -26,9 +36,6 @@ function addContentToSidebar() {
 	xhttp.send()
 }
 
-const button2 = document.querySelector('.button2')
-button2.addEventListener('click', getLukeSkywalker)
-
 function getLukeSkywalker() {
 	var xhr = new XMLHttpRequest()
 	xhr.onreadystatechange = function() {
@@ -50,6 +57,47 @@ function getLukeSkywalker() {
 	** and returning whatever we get from the API we're accessing
 	*/
 	xhr.open('GET', 'https://swapi.co/api/people/1/', true)
+	xhr.send()
+}
+
+const studentsButton = document.querySelector('.studentsButton')
+studentsButton.addEventListener('click', getStudents)
+
+function getStudents() {
+	const xhr = new XMLHttpRequest()
+	xhr.addEventListener('readystatechange', function() {
+		if(isReady(this)) {
+			const students = JSON.parse(this.response)
+			console.log(students)
+			
+			const aside = document.querySelector('aside')
+			const list = document.createElement('ul')
+			students.forEach(student => {
+				list.innerHTML += `<li>${student.name}<button class="studentButton" data-key="${student.id}">Get Student Info</button></li>`
+			})
+			aside.appendChild(list)
+		}
+	})
+	xhr.open('GET', '/api/students', true)
+	xhr.send()
+}
+
+function getStudent(student) {
+	const id = student.getAttribute('data-key')
+	console.log(id)
+	const xhr = new XMLHttpRequest()
+	xhr.addEventListener('readystatechange', function() {
+		if(isReady(this)) {
+			const student = JSON.parse(this.response)
+			
+			const aside = document.querySelector('aside')
+			aside.innerHTML = `
+				<h2>${student.name}</h2>
+				<p>${student.favLanguage}</p>
+			`
+		}
+	})
+	xhr.open('GET', `/api/students/${id}`, true)
 	xhr.send()
 }
 
